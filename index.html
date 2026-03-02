@@ -55,7 +55,7 @@
             <div class="flex justify-between h-16 items-center">
                 <div class="font-bold text-xl tracking-tighter text-vegas-neon">🎰 Vegas VIP</div>
                 <div class="hidden md:flex space-x-6 font-semibold text-sm">
-                    <a href="#voos" class="nav-link cursor-pointer">Vôos e Logística</a>
+                    <a href="#voos" class="nav-link cursor-pointer">Voos e Logística</a>
                     <a href="#roteiro" class="nav-link cursor-pointer">Roteiro Diário</a>
                     <a href="#dashboard" class="nav-link cursor-pointer">Análise de Ritmo</a>
                     <a href="#dicas" class="nav-link cursor-pointer">Dicas de Ouro</a>
@@ -79,7 +79,7 @@
         </div>
     </header>
 
-    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-28 md:pb-12 space-y-20">
 
         <section id="voos" class="scroll-mt-24">
             <div class="mb-8">
@@ -147,6 +147,10 @@
                 <h2 class="text-3xl font-bold text-vegas-dark border-l-4 border-vegas-neon pl-4 mb-4">Explorador de Roteiro Diário</h2>
                 <p class="text-lg text-gray-700">Navegue pelas abas abaixo para descobrir a programação sugerida para cada dia. O roteiro foi desenhado agrupando atrações por localização geográfica na Strip ou áreas adjacentes para minimizar o cansaço e maximizar o tempo de aproveitamento.</p>
             </div>
+            <div id="today-banner" class="mb-6 bg-vegas-dark text-white rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+                <p id="today-banner-title" class="font-bold">Hoje: fora da janela da viagem</p>
+                <p id="today-banner-date" class="text-sm text-gray-300"></p>
+            </div>
 
             <div class="bg-white rounded-2xl shadow-lg border border-vegas-sand overflow-hidden">
                 <div class="flex overflow-x-auto bg-vegas-light border-b border-vegas-sand p-2 gap-2 snap-x" id="day-tabs">
@@ -177,6 +181,30 @@
                             <p id="display-night" class="text-gray-700 leading-relaxed"></p>
                         </div>
                     </div>
+
+                    <div class="mt-8 grid md:grid-cols-2 gap-6">
+                        <div id="checklist-dia" class="bg-white rounded-xl border border-vegas-sand p-5">
+                            <div class="flex items-start justify-between gap-3 mb-4">
+                                <h5 class="font-bold text-lg">Checklist do Dia</h5>
+                                <span id="checklist-progress-text" class="text-xs font-semibold bg-vegas-neon/10 text-vegas-neon px-2 py-1 rounded-full">0/0</span>
+                            </div>
+                            <div class="w-full h-2 bg-vegas-light rounded-full mb-4 overflow-hidden">
+                                <div id="checklist-progress-bar" class="h-full bg-vegas-neon transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div id="checklist-items" class="space-y-2"></div>
+                        </div>
+
+                        <div id="reservas-rapidas" class="bg-white rounded-xl border border-vegas-sand p-5">
+                            <h5 class="font-bold text-lg mb-4">Reservas Rápidas</h5>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <a href="https://www.opentable.com/" target="_blank" rel="noopener noreferrer" class="text-center bg-vegas-light border border-vegas-sand rounded-lg px-3 py-2 hover:bg-vegas-sand transition-colors">OpenTable</a>
+                                <a href="https://www.cirquedusoleil.com/" target="_blank" rel="noopener noreferrer" class="text-center bg-vegas-light border border-vegas-sand rounded-lg px-3 py-2 hover:bg-vegas-sand transition-colors">Cirque du Soleil</a>
+                                <a href="https://www.ticketmaster.com/" target="_blank" rel="noopener noreferrer" class="text-center bg-vegas-light border border-vegas-sand rounded-lg px-3 py-2 hover:bg-vegas-sand transition-colors">Ticketmaster</a>
+                                <a href="https://www.uber.com/" target="_blank" rel="noopener noreferrer" class="text-center bg-vegas-light border border-vegas-sand rounded-lg px-3 py-2 hover:bg-vegas-sand transition-colors">Uber</a>
+                            </div>
+                            <p class="mt-3 text-xs text-gray-500">Use estes atalhos para garantir ingressos, jantares e deslocamento sem correria.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -189,6 +217,7 @@
             
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-vegas-sand">
                 <div class="chart-container">
+                    <p id="chart-status" class="text-center text-sm text-gray-600 py-2">Carregando gráfico...</p>
                     <canvas id="intensityChart"></canvas>
                 </div>
             </div>
@@ -245,8 +274,30 @@
         <p class="text-sm text-gray-400">Las Vegas Itinerary App - Desenvolvido para navegação rápida e prática.</p>
     </footer>
 
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-vegas-sand shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+        <div class="max-w-6xl mx-auto px-3 py-2 grid grid-cols-4 gap-2 text-xs font-semibold">
+            <button id="mobile-today" class="bg-vegas-light rounded-lg py-2 px-1">Hoje</button>
+            <button id="mobile-map" class="bg-vegas-light rounded-lg py-2 px-1">Mapa</button>
+            <button id="mobile-bookings" class="bg-vegas-light rounded-lg py-2 px-1">Reservas</button>
+            <button id="mobile-checklist" class="bg-vegas-light rounded-lg py-2 px-1">Checklist</button>
+        </div>
+    </nav>
+
     <script>
-        const pin = (lat, lng) => `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" class="text-vegas-neon hover:underline text-xs inline-flex items-center ml-1 font-normal bg-vegas-neon/10 px-1.5 py-0.5 rounded transition-colors" title="Ver no Mapa (Lat: ${lat}, Lng: ${lng})">📍 Mapa</a>`;
+        const TRIP_YEAR = 2026;
+        const CHECKLIST_STORAGE_KEY = 'vegasChecklistV1';
+        const DEFAULT_CHECKLIST = [
+            'Documento e cartão separados',
+            'Água + protetor solar + protetor labial',
+            'Ingressos e reservas conferidos',
+            'Power bank carregado',
+            'Roupas para variação de temperatura'
+        ];
+
+        let currentDayId = 1;
+        let checklistState = {};
+
+        const pin = (lat, lng) => `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" rel="noopener noreferrer" class="text-vegas-neon hover:underline text-xs inline-flex items-center ml-1 font-normal bg-vegas-neon/10 px-1.5 py-0.5 rounded transition-colors" title="Ver no Mapa (Lat: ${lat}, Lng: ${lng})">📍 Mapa</a>`;
 
         const itineraryData = [
             {
@@ -254,65 +305,177 @@
                 dayStr: 'Dia 1',
                 date: '23/03',
                 title: 'Chegada e O Brilho da Strip',
+                mapUrl: 'https://maps.google.com/?q=Las+Vegas+Strip',
                 morning: `Chegada no Aeroporto (LAS) ${pin(36.0840,-115.1537)}. Transporte para o hotel.`,
                 afternoon: 'Check-in no hotel. Tomem um banho e descansem um pouco do voo longo para recarregar as energias.',
-                night: `Passeio leve pelo centro da Strip. Assistam ao icônico <strong>Show das Fontes do Bellagio</strong> ${pin(36.1126,-115.1767)} (gratuito). Jantar casual (Ex: Gordon Ramsay Burger ${pin(36.1098,-115.1705)} ou Mon Ami Gabi ${pin(36.1125,-115.1707)}).`
+                night: `Passeio leve pelo centro da Strip. Assistam ao icônico <strong>Show das Fontes do Bellagio</strong> ${pin(36.1126,-115.1767)} (gratuito). Jantar casual (Ex: Gordon Ramsay Burger ${pin(36.1098,-115.1705)} ou Mon Ami Gabi ${pin(36.1125,-115.1707)}).`,
+                checklist: ['Passaporte e documentos do hotel em mãos', 'Comprar água e snacks para o quarto', 'Separar roupas leves para a noite', 'Conferir horário do Bellagio', 'Dormir cedo para reduzir jet lag']
             },
             {
                 id: 2,
                 dayStr: 'Dia 2',
                 date: '24/03',
                 title: 'O Coração de Vegas',
+                mapUrl: 'https://maps.google.com/?q=Bellagio+Las+Vegas',
                 morning: `Explorem o <strong>Bellagio</strong> por dentro, especialmente o <em>Conservatory & Botanical Gardens</em> ${pin(36.1126,-115.1767)} com a decoração de primavera.`,
                 afternoon: `Atravessem para o <strong>Caesars Palace</strong> ${pin(36.1162,-115.1745)}. Percam-se no <em>The Forum Shops</em>. No fim da tarde, caminhem até o <strong>The LINQ Promenade</strong> ${pin(36.1176,-115.1681)} e andem na <strong>High Roller</strong> (Roda Gigante).`,
-                night: 'Jantar no LINQ Promenade ou nos arredores para manter a noite prática e animada.'
+                night: 'Jantar no LINQ Promenade ou nos arredores para manter a noite prática e animada.',
+                checklist: ['Reservar High Roller com antecedência', 'Separar calçado confortável', 'Definir restaurante da noite', 'Levar documento com foto', 'Conferir saldo do chip/internet']
             },
             {
                 id: 3,
                 dayStr: 'Dia 3',
                 date: '25/03',
                 title: 'O Sul da Strip (Rota Otimizada)',
+                mapUrl: 'https://maps.google.com/?q=Welcome+to+Fabulous+Las+Vegas+Sign',
                 morning: `Peguem um Uber cedo (para evitar filas) até a placa <strong>"Welcome to Fabulous Las Vegas"</strong> ${pin(36.0820,-115.1727)}. Em seguida, explorem o <strong>Mandalay Bay</strong> ${pin(36.0907,-115.1761)} ali perto.`,
                 afternoon: `Subam a Strip (sentido norte) em direção ao <strong>New York-New York</strong> ${pin(36.1024,-115.1746)} (montanha-russa) e passem pelo imenso <strong>MGM Grand</strong> ${pin(36.1026,-115.1703)}.`,
-                night: `Espetáculo do <strong>Cirque du Soleil</strong> (Recomendação: "O" no Bellagio ou "MJ ONE" no Mandalay Bay). Jantar pós-show.`
+                night: `Espetáculo do <strong>Cirque du Soleil</strong> (Recomendação: "O" no Bellagio ou "MJ ONE" no Mandalay Bay). Jantar pós-show.`,
+                checklist: ['Reservar show do Cirque du Soleil', 'Checar dress code para jantar', 'Levar casaco leve', 'Planejar deslocamento por Uber', 'Separar orçamento do dia']
             },
             {
                 id: 4,
                 dayStr: 'Dia 4',
                 date: '26/03',
                 title: 'Bate-e-Volta: Grand Canyon',
+                mapUrl: 'https://maps.google.com/?q=Grand+Canyon+West+Skywalk',
                 morning: `Saída cedo para a maravilha natural. Carro/Excursão para a represa <strong>Hoover Dam</strong> ${pin(36.0161,-114.7377)} e o <strong>Grand Canyon West Rim</strong> (Skywalk) ${pin(36.0118,-113.8109)}.`,
                 afternoon: 'Continuação do passeio pelo Canyon e viagem de retorno a Las Vegas no fim da tarde.',
-                night: 'Noite de descanso merecido. Peçam algo no quarto, comam no buffet do hotel e relaxem jogando levemente nos cassinos do próprio hotel.'
+                night: 'Noite de descanso merecido. Peçam algo no quarto, comam no buffet do hotel e relaxem jogando levemente nos cassinos do próprio hotel.',
+                checklist: ['Levar documento para excursão', 'Água extra para o deserto', 'Protetor solar reforçado', 'Carregar celular e power bank', 'Confirmar horário de retorno']
             },
             {
                 id: 5,
                 dayStr: 'Dia 5',
                 date: '27/03',
                 title: 'Downtown Vegas e Arte Neon',
+                mapUrl: 'https://maps.google.com/?q=Fremont+Street+Experience',
                 morning: `Parte norte da Strip: Visitem o <strong>The Venetian</strong> e <strong>The Palazzo</strong> ${pin(36.1212,-115.1697)}. Façam o passeio de gôndola ou caminhem pelos canais.`,
                 afternoon: `Uber para Downtown Vegas. Visitem o <strong>The Mob Museum</strong> (Museu da Máfia) ${pin(36.1728,-115.1412)}. No fim da tarde, vão ao <strong>The Neon Museum</strong> ${pin(36.1772,-115.1356)} (agendar para o pôr do sol).`,
-                night: `Explorem a <strong>Fremont Street Experience</strong> ${pin(36.1698,-115.1438)}. Telão de LED, tirolesa SlotZilla e uma vibe mais "raiz". Jantar em Downtown.`
+                night: `Explorem a <strong>Fremont Street Experience</strong> ${pin(36.1698,-115.1438)}. Telão de LED, tirolesa SlotZilla e uma vibe mais "raiz". Jantar em Downtown.`,
+                checklist: ['Reservar ingresso do Neon Museum', 'Definir transporte ida/volta Downtown', 'Levar documento para bares/cassino', 'Separar roupa para noite', 'Conferir bateria do celular']
             },
             {
                 id: 6,
                 dayStr: 'Dia 6',
                 date: '28/03',
                 title: 'Compras, Arte e Despedida',
+                mapUrl: 'https://maps.google.com/?q=Las+Vegas+North+Premium+Outlets',
                 morning: `Manhã de compras no <strong>Las Vegas North Premium Outlets</strong> ${pin(36.1624,-115.1572)}.`,
                 afternoon: `Almoço/Vista na torre do <strong>The STRAT</strong> ${pin(36.1475,-115.1566)}. Em seguida, Uber para o complexo <strong>AREA15</strong> (Omega Mart) ${pin(36.1324,-115.1813)}. (Rota otimizada do norte para o oeste).`,
-                night: `Jantar de despedida elegante: <strong>Hell's Kitchen</strong> ${pin(36.1162,-115.1745)}. Drinks de saideira no badalado <em>Chandelier Bar</em> no Cosmopolitan ${pin(36.1098,-115.1746)}.`
+                night: `Jantar de despedida elegante: <strong>Hell's Kitchen</strong> ${pin(36.1162,-115.1745)}. Drinks de saideira no badalado <em>Chandelier Bar</em> no Cosmopolitan ${pin(36.1098,-115.1746)}.`,
+                checklist: ['Reservar mesa do jantar de despedida', 'Definir limite de compras', 'Levar mala dobrável para extras', 'Confirmar horário do AREA15', 'Checar roupas para voo de volta']
             },
             {
                 id: 7,
                 dayStr: 'Dia 7',
                 date: '29/03',
                 title: 'Dia Livre e Preparação',
+                mapUrl: 'https://maps.google.com/?q=Las+Vegas',
                 morning: 'Aproveitem a piscina do hotel. Em março o clima esquenta e é excelente para relaxar antes do retorno.',
                 afternoon: 'Tempo livre: retorno a cassinos favoritos, compras de lembrancinhas nas farmácias CVS/Walgreens ou últimas jogadas nas máquinas.',
-                night: 'Organização final. Façam as malas e durmam cedo para encarar a maratona de voos no dia seguinte.'
+                night: 'Organização final. Façam as malas e durmam cedo para encarar a maratona de voos no dia seguinte.',
+                checklist: ['Fazer malas com antecedência', 'Separar documentos de retorno', 'Checar peso das malas', 'Alarme para saída do hotel', 'Dormir cedo']
             }
         ];
+
+        function toTripDate(dateStr) {
+            const [day, month] = dateStr.split('/').map(Number);
+            return new Date(TRIP_YEAR, month - 1, day);
+        }
+
+        function formatFullDate(dateStr) {
+            return toTripDate(dateStr).toLocaleDateString('pt-BR', {
+                weekday: 'short',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function getTodayDayId() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const found = itineraryData.find(day => {
+                const tripDate = toTripDate(day.date);
+                tripDate.setHours(0, 0, 0, 0);
+                return tripDate.getTime() === today.getTime();
+            });
+            return found ? found.id : null;
+        }
+
+        function updateTodayBanner() {
+            const todayTitle = document.getElementById('today-banner-title');
+            const todayDate = document.getElementById('today-banner-date');
+            const todayId = getTodayDayId();
+
+            if (todayId) {
+                const dayData = itineraryData.find(d => d.id === todayId);
+                todayTitle.innerText = `Hoje: ${dayData.dayStr} - ${dayData.title}`;
+                todayDate.innerText = formatFullDate(dayData.date);
+                return;
+            }
+
+            const first = itineraryData[0];
+            const last = itineraryData[itineraryData.length - 1];
+            todayTitle.innerText = 'Hoje: fora da janela da viagem';
+            todayDate.innerText = `Roteiro planejado: ${formatFullDate(first.date)} a ${formatFullDate(last.date)}`;
+        }
+
+        function loadChecklistState() {
+            try {
+                const saved = localStorage.getItem(CHECKLIST_STORAGE_KEY);
+                checklistState = saved ? JSON.parse(saved) : {};
+            } catch (_) {
+                checklistState = {};
+            }
+        }
+
+        function saveChecklistState() {
+            localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(checklistState));
+        }
+
+        function getChecklistItems(dayData) {
+            return dayData.checklist && dayData.checklist.length ? dayData.checklist : DEFAULT_CHECKLIST;
+        }
+
+        function updateChecklistProgress(dayId, totalItems) {
+            const done = (checklistState[dayId] || []).filter(Boolean).length;
+            const progressText = document.getElementById('checklist-progress-text');
+            const progressBar = document.getElementById('checklist-progress-bar');
+            const percent = totalItems > 0 ? Math.round((done / totalItems) * 100) : 0;
+            progressText.innerText = `${done}/${totalItems}`;
+            progressBar.style.width = `${percent}%`;
+        }
+
+        function renderChecklist(dayData) {
+            const container = document.getElementById('checklist-items');
+            const items = getChecklistItems(dayData);
+            const dayState = checklistState[dayData.id] || [];
+
+            container.innerHTML = '';
+            items.forEach((item, index) => {
+                const row = document.createElement('label');
+                row.className = 'flex items-start gap-2 text-sm text-gray-700';
+                row.innerHTML = `
+                    <input type="checkbox" data-index="${index}" class="mt-0.5 h-4 w-4 accent-rose-600" ${dayState[index] ? 'checked' : ''}>
+                    <span>${item}</span>
+                `;
+                container.appendChild(row);
+            });
+
+            container.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                input.addEventListener('change', (event) => {
+                    const idx = Number(event.target.getAttribute('data-index'));
+                    checklistState[dayData.id] = checklistState[dayData.id] || [];
+                    checklistState[dayData.id][idx] = event.target.checked;
+                    saveChecklistState();
+                    updateChecklistProgress(dayData.id, items.length);
+                });
+            });
+
+            updateChecklistProgress(dayData.id, items.length);
+        }
 
         function toggleDetails(id) {
             const el = document.getElementById(id);
@@ -323,105 +486,160 @@
             }
         }
 
-        function renderTabs() {
+        function selectDay(dayId, btnElement = null) {
             const tabsContainer = document.getElementById('day-tabs');
-            itineraryData.forEach((day, index) => {
-                const button = document.createElement('button');
-                button.className = `px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap snap-center transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}`;
-                button.innerText = `${day.dayStr} (${day.date})`;
-                button.onclick = () => selectDay(day.id, button);
-                tabsContainer.appendChild(button);
-            });
-            selectDay(1, tabsContainer.firstElementChild); 
-        }
+            const activeButton = btnElement || tabsContainer.querySelector(`[data-day-id="${dayId}"]`);
 
-        function selectDay(dayId, btnElement) {
-            const tabsContainer = document.getElementById('day-tabs');
             Array.from(tabsContainer.children).forEach(btn => {
                 btn.classList.remove('tab-active');
                 btn.classList.add('tab-inactive');
             });
-            btnElement.classList.remove('tab-inactive');
-            btnElement.classList.add('tab-active');
+            if (activeButton) {
+                activeButton.classList.remove('tab-inactive');
+                activeButton.classList.add('tab-active');
+            }
 
             const dayData = itineraryData.find(d => d.id === dayId);
-            
-            document.getElementById('display-date').innerText = `${dayData.dayStr} - ${dayData.date}`;
+            currentDayId = dayId;
+
+            document.getElementById('display-date').innerText = `${dayData.dayStr} - ${formatFullDate(dayData.date)}`;
             document.getElementById('display-title').innerText = dayData.title;
             document.getElementById('display-morning').innerHTML = dayData.morning;
             document.getElementById('display-afternoon').innerHTML = dayData.afternoon;
             document.getElementById('display-night').innerHTML = dayData.night;
+            renderChecklist(dayData);
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('day-tabs');
+            tabsContainer.innerHTML = '';
+
+            itineraryData.forEach((day, index) => {
+                const button = document.createElement('button');
+                button.className = `px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap snap-center transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}`;
+                button.innerText = `${day.dayStr} (${day.date})`;
+                button.setAttribute('data-day-id', day.id);
+                button.onclick = () => selectDay(day.id, button);
+                tabsContainer.appendChild(button);
+            });
+
+            const todayId = getTodayDayId();
+            selectDay(todayId || 1);
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function goToToday() {
+            const todayId = getTodayDayId();
+            if (todayId) {
+                selectDay(todayId);
+            }
+            scrollToSection('roteiro');
+        }
+
+        function openCurrentMap() {
+            const dayData = itineraryData.find(d => d.id === currentDayId);
+            if (dayData && dayData.mapUrl) {
+                window.open(dayData.mapUrl, '_blank', 'noopener,noreferrer');
+            }
+        }
+
+        function bindMobileActions() {
+            document.getElementById('mobile-today').addEventListener('click', goToToday);
+            document.getElementById('mobile-map').addEventListener('click', openCurrentMap);
+            document.getElementById('mobile-bookings').addEventListener('click', () => scrollToSection('reservas-rapidas'));
+            document.getElementById('mobile-checklist').addEventListener('click', () => scrollToSection('checklist-dia'));
         }
 
         function initChart() {
-            const ctx = document.getElementById('intensityChart').getContext('2d');
-            
-            const labels = itineraryData.map(d => d.dayStr);
-            const walkData = [40, 80, 70, 60, 75, 50, 20]; 
-            const showData = [30, 60, 80, 50, 70, 80, 20]; 
-            const relaxData = [60, 20, 30, 20, 30, 20, 90]; 
+            const statusEl = document.getElementById('chart-status');
+            const canvas = document.getElementById('intensityChart');
 
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Caminhada/Exploração Físcia',
-                            data: walkData,
-                            backgroundColor: '#fbbf24', 
-                            borderWidth: 0,
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'Entretenimento/Shows',
-                            data: showData,
-                            backgroundColor: '#e11d48', 
-                            borderWidth: 0,
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'Relaxamento/Descanso',
-                            data: relaxData,
-                            backgroundColor: '#0ea5e9', 
-                            borderWidth: 0,
-                            borderRadius: 4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 12 } } },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
-                            titleFont: { family: 'Inter', size: 14 },
-                            bodyFont: { family: 'Inter', size: 13 },
-                            padding: 12,
-                            cornerRadius: 8
-                        }
+            if (!window.Chart || !canvas) {
+                statusEl.innerText = 'Não foi possível carregar o gráfico agora. Recarregue a página.';
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+            const labels = itineraryData.map(d => d.dayStr);
+            const walkData = [40, 80, 70, 60, 75, 50, 20];
+            const showData = [30, 60, 80, 50, 70, 80, 20];
+            const relaxData = [60, 20, 30, 20, 30, 20, 90];
+
+            try {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Caminhada/Exploração Física',
+                                data: walkData,
+                                backgroundColor: '#fbbf24',
+                                borderWidth: 0,
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Entretenimento/Shows',
+                                data: showData,
+                                backgroundColor: '#e11d48',
+                                borderWidth: 0,
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Relaxamento/Descanso',
+                                data: relaxData,
+                                backgroundColor: '#0ea5e9',
+                                borderWidth: 0,
+                                borderRadius: 4
+                            }
+                        ]
                     },
-                    scales: {
-                        x: { stacked: true, grid: { display: false } },
-                        y: { 
-                            stacked: true, 
-                            beginAtZero: true, 
-                            max: 180, 
-                            ticks: { display: false }, 
-                            grid: { borderDash: [5, 5], color: '#e5d3c8' },
-                            title: { display: true, text: 'Nível de Intensidade Acumulada', font: {family: 'Inter'} }
-                        }
-                    },
-                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
-                }
-            });
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 12 } } },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                                titleFont: { family: 'Inter', size: 14 },
+                                bodyFont: { family: 'Inter', size: 13 },
+                                padding: 12,
+                                cornerRadius: 8
+                            }
+                        },
+                        scales: {
+                            x: { stacked: true, grid: { display: false } },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                max: 180,
+                                ticks: { display: false },
+                                grid: { borderDash: [5, 5], color: '#e5d3c8' },
+                                title: { display: true, text: 'Nível de Intensidade Acumulada', font: { family: 'Inter' } }
+                            }
+                        },
+                        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                    }
+                });
+                statusEl.classList.add('hidden');
+            } catch (_) {
+                statusEl.innerText = 'Erro ao renderizar o gráfico. Recarregue a página para tentar novamente.';
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadChecklistState();
+            updateTodayBanner();
             renderTabs();
+            bindMobileActions();
             initChart();
         });
     </script>
