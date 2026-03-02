@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roteiro Interativo: Las Vegas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        vegas: { light: '#fdf8f5', sand: '#e5d3c8', neon: '#e11d48', dark: '#1e293b', gold: '#fbbf24' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #fdf8f5; color: #1e293b; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        .tab-active { background-color: #1e293b; color: white; }
+        .tab-inactive { background-color: #e5d3c8; color: #1e293b; }
+        .tab-inactive:hover { background-color: #d4bdae; }
+        .nav-link:hover { color: #e11d48; text-decoration: underline; }
+    </style>
+</head>
+<body class="antialiased font-sans flex flex-col min-h-screen">
+
+    <!-- Chosen Palette: Warm Desert Neutrals with Neon Accents (Slate 800, Rose 600, Amber 400, Light Sand) -->
+    <!-- Application Structure Plan: The SPA is structured logically into four main sections to optimize planning and consumption: 1) A Header/Hero for context. 2) 'Guia de Deslocamento' using an interactive accordion timeline to clarify complex flight/immigration logistics. 3) 'Roteiro Interativo', a tabbed interface allowing users to explore the day-by-day plan dynamically without overwhelming text blocks. 4) 'Análise da Viagem', utilizing a Chart.js visualization to give users a macro-view of the trip's daily intensity. 5) 'Dicas de Ouro' in an easy-to-read grid. This functional dashboard approach prioritizes usability, quick reference on mobile, and step-by-step exploration over a linear document format. -->
+    <!-- Visualization & Content Choices: 
+         - Flights -> Goal: Organize/Inform -> Viz: HTML Timeline Accordion -> Interaction: Click to expand details -> Justification: Breaks down complex logistics (immigration in IAH) into digestible steps -> Method: Tailwind/Vanilla JS (NO SVG).
+         - Daily Itinerary -> Goal: Organize/Explore -> Viz: Tabbed Content Area -> Interaction: Click days to load Morning/Afternoon/Night -> Justification: Prevents scrolling fatigue, focuses user on one day at a time -> Method: Tailwind/Vanilla JS.
+         - Trip Intensity -> Goal: Analyze/Compare -> Viz: Stacked Bar Chart -> Interaction: Hover for tooltips -> Justification: Provides a visual summary of the trip's pace (walking vs relaxing vs entertainment) -> Method: Chart.js.
+         - Tips -> Goal: Inform -> Viz: Card Grid -> Interaction: Hover effects -> Justification: Quick, scannable format for crucial rules -> Method: Tailwind Grid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-vegas-sand shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="font-bold text-xl tracking-tighter text-vegas-neon">🎰 Vegas VIP</div>
+                <div class="hidden md:flex space-x-6 font-semibold text-sm">
+                    <a href="#voos" class="nav-link cursor-pointer">Vôos e Logística</a>
+                    <a href="#roteiro" class="nav-link cursor-pointer">Roteiro Diário</a>
+                    <a href="#dashboard" class="nav-link cursor-pointer">Análise de Ritmo</a>
+                    <a href="#dicas" class="nav-link cursor-pointer">Dicas de Ouro</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-vegas-dark text-white py-16 px-4 md:px-8 border-b-4 border-vegas-neon">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div class="mb-8 md:mb-0 max-w-2xl">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-4">A Grande Estreia em Las Vegas</h1>
+                <p class="text-lg md:text-xl text-gray-300 mb-6">Um roteiro dinâmico e exploratório de 7 dias criado para dois casais, equilibrando atrações clássicas, alta gastronomia e entretenimento inesquecível na capital mundial da diversão.</p>
+                <div class="flex flex-wrap gap-4 text-sm font-semibold">
+                    <span class="bg-white/20 px-3 py-1 rounded-full">📅 23 a 30 de Março</span>
+                    <span class="bg-white/20 px-3 py-1 rounded-full">👥 4 Adultos (36 anos)</span>
+                    <span class="bg-white/20 px-3 py-1 rounded-full">⭐ Primeira Vez</span>
+                </div>
+            </div>
+            <div class="text-6xl md:text-8xl drop-shadow-lg">🎲</div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+        <section id="voos" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-vegas-dark border-l-4 border-vegas-neon pl-4 mb-4">Guia de Deslocamento e Aeroportos</h2>
+                <p class="text-lg text-gray-700">A rota Brasília ➔ São Paulo ➔ Houston ➔ Las Vegas exige atenção, especialmente devido às regras de imigração dos EUA. Esta seção detalha os procedimentos críticos de conexão para garantir que vocês não percam seus voos ou bagagens.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-vegas-sand">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">🛫 Ida (23 de Março)</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-vegas-light rounded-lg border-l-4 border-blue-400">
+                            <p class="font-bold">1. BSB ➔ GRU (Voo Doméstico)</p>
+                            <p class="text-sm mt-1">Confirme no balcão em Brasília se as malas irão direto para os EUA.</p>
+                        </div>
+                        <div class="p-4 bg-vegas-light rounded-lg border-l-4 border-blue-400">
+                            <p class="font-bold">2. GRU ➔ IAH (Voo Internacional)</p>
+                            <p class="text-sm mt-1">Voo longo noturno. Aproveitem para descansar.</p>
+                        </div>
+                        <div class="p-4 bg-red-50 rounded-lg border-l-4 border-red-500 cursor-pointer hover:bg-red-100 transition-colors" onclick="toggleDetails('iah-details')">
+                            <p class="font-bold text-red-700 flex justify-between items-center">
+                                3. Conexão em Houston (IAH) - ATENÇÃO MÁXIMA
+                                <span class="text-xs bg-red-200 px-2 py-1 rounded text-red-800">Clique para expandir</span>
+                            </p>
+                            <div id="iah-details" class="hidden mt-3 text-sm space-y-2 text-red-900">
+                                <p>🛂 <strong>Imigração:</strong> Feita aqui, no primeiro porto de entrada dos EUA.</p>
+                                <p>🧳 <strong>Bagagem:</strong> Vocês DEVEM pegar as malas na esteira em Houston após o carimbo.</p>
+                                <p>🔄 <strong>Re-despacho:</strong> Entreguem as malas na esteira de trânsito (Baggage Drop-off) logo após a alfândega.</p>
+                                <p>🔍 <strong>Segurança:</strong> Passagem obrigatória pelo raio-x novamente.</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-vegas-light rounded-lg border-l-4 border-green-400">
+                            <p class="font-bold">4. Chegada em LAS</p>
+                            <p class="text-sm mt-1">Peguem as malas finais, sigam placas "Rideshare" e chamem um Uber/Lyft.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md border border-vegas-sand">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">🛬 Volta (30 de Março)</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-vegas-light rounded-lg border-l-4 border-blue-400">
+                            <p class="font-bold">1. LAS ➔ IAH</p>
+                            <p class="text-sm mt-1">Despache as malas no aeroporto de Las Vegas com 2h30 de antecedência.</p>
+                        </div>
+                        <div class="p-4 bg-vegas-light rounded-lg border-l-4 border-blue-400">
+                            <p class="font-bold">2. IAH ➔ GRU</p>
+                            <p class="text-sm mt-1">Não há imigração de saída. Apenas troquem de portão. Malas vão para o Brasil.</p>
+                        </div>
+                        <div class="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                            <p class="font-bold text-orange-800">3. GRU ➔ BSB (Alfândega no Brasil)</p>
+                            <div class="mt-2 text-sm text-orange-900 space-y-1">
+                                <p>Vocês <strong>precisam pegar as malas em Guarulhos</strong>.</p>
+                                <p>Passarão pela alfândega brasileira.</p>
+                                <p>Re-despachar no balcão de conexões para Brasília.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roteiro" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-vegas-dark border-l-4 border-vegas-neon pl-4 mb-4">Explorador de Roteiro Diário</h2>
+                <p class="text-lg text-gray-700">Navegue pelas abas abaixo para descobrir a programação sugerida para cada dia. O roteiro foi desenhado agrupando atrações por localização geográfica na Strip ou áreas adjacentes para minimizar o cansaço e maximizar o tempo de aproveitamento.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg border border-vegas-sand overflow-hidden">
+                <div class="flex overflow-x-auto bg-vegas-light border-b border-vegas-sand p-2 gap-2 snap-x" id="day-tabs">
+                </div>
+
+                <div class="p-6 md:p-8" id="day-content-area">
+                    <div class="mb-6 border-b pb-4">
+                        <h3 id="display-date" class="text-vegas-neon font-bold tracking-wide uppercase text-sm mb-1"></h3>
+                        <h4 id="display-title" class="text-3xl font-extrabold text-vegas-dark"></h4>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-vegas-light rounded-xl p-5 border border-vegas-sand">
+                            <div class="text-2xl mb-2">🌅</div>
+                            <h5 class="font-bold text-lg mb-3 border-b border-gray-300 pb-2">Manhã</h5>
+                            <p id="display-morning" class="text-gray-700 leading-relaxed"></p>
+                        </div>
+                        
+                        <div class="bg-vegas-light rounded-xl p-5 border border-vegas-sand">
+                            <div class="text-2xl mb-2">☀️</div>
+                            <h5 class="font-bold text-lg mb-3 border-b border-gray-300 pb-2">Tarde</h5>
+                            <p id="display-afternoon" class="text-gray-700 leading-relaxed"></p>
+                        </div>
+                        
+                        <div class="bg-vegas-light rounded-xl p-5 border border-vegas-sand">
+                            <div class="text-2xl mb-2">🌙</div>
+                            <h5 class="font-bold text-lg mb-3 border-b border-gray-300 pb-2">Noite & Jantar</h5>
+                            <p id="display-night" class="text-gray-700 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboard" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-vegas-dark border-l-4 border-vegas-neon pl-4 mb-4">Análise de Ritmo da Viagem</h2>
+                <p class="text-lg text-gray-700">Este gráfico interativo visualiza a distribuição da energia ao longo da viagem. Como os hotéis são gigantescos, dias com alta barra vermelha exigem calçados extremamente confortáveis. O ritmo intercala dias intensos com momentos de espetáculo e relaxamento.</p>
+            </div>
+            
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-vegas-sand">
+                <div class="chart-container">
+                    <canvas id="intensityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="dicas" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-vegas-dark border-l-4 border-vegas-neon pl-4 mb-4">Dicas de Ouro para Sobrevivência</h2>
+                <p class="text-lg text-gray-700">Informações cruciais sobre a cultura local, regras de transporte e as peculiaridades do deserto de Nevada que todo visitante de primeira viagem precisa saber antes de chegar.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-vegas-sand hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">🥾</div>
+                    <h4 class="font-bold text-lg mb-2">Ilusão das Distâncias</h4>
+                    <p class="text-gray-600 text-sm">Os hotéis são GIGANTES. O hotel vizinho parece estar a 5 minutos, mas pode levar 20 minutos de caminhada. <strong>Usem sapatos muito confortáveis.</strong></p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-vegas-sand hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">🌡️</div>
+                    <h4 class="font-bold text-lg mb-2">Clima de Primavera</h4>
+                    <p class="text-gray-600 text-sm">De dia faz sol (20ºC a 25ºC), mas <strong>à noite no deserto esfria bastante</strong> (10ºC ou menos). Levem casaco para a noite e roupas leves para o dia.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-vegas-sand hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">💧</div>
+                    <h4 class="font-bold text-lg mb-2">Hidratação Urgente</h4>
+                    <p class="text-gray-600 text-sm">É um deserto. Comprem galões de água nas farmácias Walgreens/CVS na Strip para o quarto. Usem hidratante e protetor labial o tempo todo.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-vegas-sand hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">📅</div>
+                    <h4 class="font-bold text-lg mb-2">Reserva é Tudo</h4>
+                    <p class="text-gray-600 text-sm">Restaurantes bons e shows esgotam rápido. Usem o app <strong>OpenTable</strong> para reservar os jantares com pelo menos 1 mês de antecedência.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-vegas-sand hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">🚗</div>
+                    <h4 class="font-bold text-lg mb-2">Rideshare (Uber/Lyft)</h4>
+                    <p class="text-gray-600 text-sm">Eles NÃO podem parar na rua na Strip. Sigam as placas de "Rideshare Pickup" dentro dos cassinos (geralmente nas garagens laterais).</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-vegas-sand hover:shadow-md transition-shadow bg-vegas-neon/5">
+                    <div class="text-3xl mb-3">💵</div>
+                    <h4 class="font-bold text-lg mb-2 text-vegas-neon">Gorjetas (Tipping)</h4>
+                    <p class="text-gray-600 text-sm">Não inclusas na conta. O padrão esperado é <strong>18% a 22%</strong>. Nos cassinos, bebidas são grátis jogando, mas é obrigatório dar US$ 1 a US$ 2 por bebida para a garçonete.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-vegas-dark text-white py-8 text-center mt-12">
+        <p class="text-sm text-gray-400">Las Vegas Itinerary App - Desenvolvido para navegação rápida e prática.</p>
+    </footer>
+
+    <script>
+        const pin = (lat, lng) => `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" class="text-vegas-neon hover:underline text-xs inline-flex items-center ml-1 font-normal bg-vegas-neon/10 px-1.5 py-0.5 rounded transition-colors" title="Ver no Mapa (Lat: ${lat}, Lng: ${lng})">📍 Mapa</a>`;
+
+        const itineraryData = [
+            {
+                id: 1,
+                dayStr: 'Dia 1',
+                date: '23/03',
+                title: 'Chegada e O Brilho da Strip',
+                morning: `Chegada no Aeroporto (LAS) ${pin(36.0840,-115.1537)}. Transporte para o hotel.`,
+                afternoon: 'Check-in no hotel. Tomem um banho e descansem um pouco do voo longo para recarregar as energias.',
+                night: `Passeio leve pelo centro da Strip. Assistam ao icônico <strong>Show das Fontes do Bellagio</strong> ${pin(36.1126,-115.1767)} (gratuito). Jantar casual (Ex: Gordon Ramsay Burger ${pin(36.1098,-115.1705)} ou Mon Ami Gabi ${pin(36.1125,-115.1707)}).`
+            },
+            {
+                id: 2,
+                dayStr: 'Dia 2',
+                date: '24/03',
+                title: 'O Coração de Vegas',
+                morning: `Explorem o <strong>Bellagio</strong> por dentro, especialmente o <em>Conservatory & Botanical Gardens</em> ${pin(36.1126,-115.1767)} com a decoração de primavera.`,
+                afternoon: `Atravessem para o <strong>Caesars Palace</strong> ${pin(36.1162,-115.1745)}. Percam-se no <em>The Forum Shops</em>. No fim da tarde, caminhem até o <strong>The LINQ Promenade</strong> ${pin(36.1176,-115.1681)} e andem na <strong>High Roller</strong> (Roda Gigante).`,
+                night: 'Jantar no LINQ Promenade ou nos arredores para manter a noite prática e animada.'
+            },
+            {
+                id: 3,
+                dayStr: 'Dia 3',
+                date: '25/03',
+                title: 'O Sul da Strip (Rota Otimizada)',
+                morning: `Peguem um Uber cedo (para evitar filas) até a placa <strong>"Welcome to Fabulous Las Vegas"</strong> ${pin(36.0820,-115.1727)}. Em seguida, explorem o <strong>Mandalay Bay</strong> ${pin(36.0907,-115.1761)} ali perto.`,
+                afternoon: `Subam a Strip (sentido norte) em direção ao <strong>New York-New York</strong> ${pin(36.1024,-115.1746)} (montanha-russa) e passem pelo imenso <strong>MGM Grand</strong> ${pin(36.1026,-115.1703)}.`,
+                night: `Espetáculo do <strong>Cirque du Soleil</strong> (Recomendação: "O" no Bellagio ou "MJ ONE" no Mandalay Bay). Jantar pós-show.`
+            },
+            {
+                id: 4,
+                dayStr: 'Dia 4',
+                date: '26/03',
+                title: 'Bate-e-Volta: Grand Canyon',
+                morning: `Saída cedo para a maravilha natural. Carro/Excursão para a represa <strong>Hoover Dam</strong> ${pin(36.0161,-114.7377)} e o <strong>Grand Canyon West Rim</strong> (Skywalk) ${pin(36.0118,-113.8109)}.`,
+                afternoon: 'Continuação do passeio pelo Canyon e viagem de retorno a Las Vegas no fim da tarde.',
+                night: 'Noite de descanso merecido. Peçam algo no quarto, comam no buffet do hotel e relaxem jogando levemente nos cassinos do próprio hotel.'
+            },
+            {
+                id: 5,
+                dayStr: 'Dia 5',
+                date: '27/03',
+                title: 'Downtown Vegas e Arte Neon',
+                morning: `Parte norte da Strip: Visitem o <strong>The Venetian</strong> e <strong>The Palazzo</strong> ${pin(36.1212,-115.1697)}. Façam o passeio de gôndola ou caminhem pelos canais.`,
+                afternoon: `Uber para Downtown Vegas. Visitem o <strong>The Mob Museum</strong> (Museu da Máfia) ${pin(36.1728,-115.1412)}. No fim da tarde, vão ao <strong>The Neon Museum</strong> ${pin(36.1772,-115.1356)} (agendar para o pôr do sol).`,
+                night: `Explorem a <strong>Fremont Street Experience</strong> ${pin(36.1698,-115.1438)}. Telão de LED, tirolesa SlotZilla e uma vibe mais "raiz". Jantar em Downtown.`
+            },
+            {
+                id: 6,
+                dayStr: 'Dia 6',
+                date: '28/03',
+                title: 'Compras, Arte e Despedida',
+                morning: `Manhã de compras no <strong>Las Vegas North Premium Outlets</strong> ${pin(36.1624,-115.1572)}.`,
+                afternoon: `Almoço/Vista na torre do <strong>The STRAT</strong> ${pin(36.1475,-115.1566)}. Em seguida, Uber para o complexo <strong>AREA15</strong> (Omega Mart) ${pin(36.1324,-115.1813)}. (Rota otimizada do norte para o oeste).`,
+                night: `Jantar de despedida elegante: <strong>Hell's Kitchen</strong> ${pin(36.1162,-115.1745)}. Drinks de saideira no badalado <em>Chandelier Bar</em> no Cosmopolitan ${pin(36.1098,-115.1746)}.`
+            },
+            {
+                id: 7,
+                dayStr: 'Dia 7',
+                date: '29/03',
+                title: 'Dia Livre e Preparação',
+                morning: 'Aproveitem a piscina do hotel. Em março o clima esquenta e é excelente para relaxar antes do retorno.',
+                afternoon: 'Tempo livre: retorno a cassinos favoritos, compras de lembrancinhas nas farmácias CVS/Walgreens ou últimas jogadas nas máquinas.',
+                night: 'Organização final. Façam as malas e durmam cedo para encarar a maratona de voos no dia seguinte.'
+            }
+        ];
+
+        function toggleDetails(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('day-tabs');
+            itineraryData.forEach((day, index) => {
+                const button = document.createElement('button');
+                button.className = `px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap snap-center transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}`;
+                button.innerText = `${day.dayStr} (${day.date})`;
+                button.onclick = () => selectDay(day.id, button);
+                tabsContainer.appendChild(button);
+            });
+            selectDay(1, tabsContainer.firstElementChild); 
+        }
+
+        function selectDay(dayId, btnElement) {
+            const tabsContainer = document.getElementById('day-tabs');
+            Array.from(tabsContainer.children).forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('tab-inactive');
+            });
+            btnElement.classList.remove('tab-inactive');
+            btnElement.classList.add('tab-active');
+
+            const dayData = itineraryData.find(d => d.id === dayId);
+            
+            document.getElementById('display-date').innerText = `${dayData.dayStr} - ${dayData.date}`;
+            document.getElementById('display-title').innerText = dayData.title;
+            document.getElementById('display-morning').innerHTML = dayData.morning;
+            document.getElementById('display-afternoon').innerHTML = dayData.afternoon;
+            document.getElementById('display-night').innerHTML = dayData.night;
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('intensityChart').getContext('2d');
+            
+            const labels = itineraryData.map(d => d.dayStr);
+            const walkData = [40, 80, 70, 60, 75, 50, 20]; 
+            const showData = [30, 60, 80, 50, 70, 80, 20]; 
+            const relaxData = [60, 20, 30, 20, 30, 20, 90]; 
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Caminhada/Exploração Físcia',
+                            data: walkData,
+                            backgroundColor: '#fbbf24', 
+                            borderWidth: 0,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Entretenimento/Shows',
+                            data: showData,
+                            backgroundColor: '#e11d48', 
+                            borderWidth: 0,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Relaxamento/Descanso',
+                            data: relaxData,
+                            backgroundColor: '#0ea5e9', 
+                            borderWidth: 0,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 12 } } },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            titleFont: { family: 'Inter', size: 14 },
+                            bodyFont: { family: 'Inter', size: 13 },
+                            padding: 12,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true, grid: { display: false } },
+                        y: { 
+                            stacked: true, 
+                            beginAtZero: true, 
+                            max: 180, 
+                            ticks: { display: false }, 
+                            grid: { borderDash: [5, 5], color: '#e5d3c8' },
+                            title: { display: true, text: 'Nível de Intensidade Acumulada', font: {family: 'Inter'} }
+                        }
+                    },
+                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTabs();
+            initChart();
+        });
+    </script>
+</body>
+</html>
